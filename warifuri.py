@@ -48,7 +48,7 @@ prob += lpSum(get_score(i, j) * x[i, j] for i in students for j in subjects)
 for i in students:
     prob += lpSum(x[i, j] for j in subjects) == 1
 
-# ----- 科目ごとの人数制限（個別に設定） -----
+# ----- 科目ごとの人数制限 -----
 subject_limits = {
     "測地観測": (4, 5),
     "大気物理・化学観測": (1, 2),
@@ -66,10 +66,6 @@ for j in subjects:
         total = lpSum(x[i, j] for i in students)
         prob += total >= lower
         prob += total <= upper
-    else:
-        # 制限が未設定の科目には任意の人数を許可（上限100などにする）
-        total = lpSum(x[i, j] for i in students)
-        prob += total <= 100
 
 # ----- 解く -----
 status = prob.solve()
@@ -80,23 +76,13 @@ assignment = {
     i: j for i in students for j in subjects if x[i, j].varValue == 1
 }
 
-# 割り当て済みの生徒ID
-assigned_ids = set(assignment.keys())
-
-# 未割り当ての生徒ID
-unassigned_ids = [i for i in students if i not in assigned_ids]
-
-# 割り当て済み + 未割り当てを統合して結果に含める
-full_result_df = pd.DataFrame({
-    "student_id": students,
-    "assigned_subject": [
-        id_to_subject[assignment[i]] if i in assignment else "未割り当て"
-        for i in students
-    ]
+result_df = pd.DataFrame({
+    "student_id": list(assignment.keys()),
+    "assigned_subject": [id_to_subject[assignment[i]] for i in assignment]
 })
 
 # 結果保存
-full_result_df.to_csv("assignment_result.csv", index=False)
+result_df.to_csv("assignment_result.csv", index=False)
 
-# 科目ごとの人数分布も出力
-print(full_result_df["assigned_subject"].value_counts())
+# 科目ごとの人数分布を出力
+print(result_df["assigned_subject"].value_counts())
