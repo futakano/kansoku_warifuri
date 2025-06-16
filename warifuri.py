@@ -96,7 +96,7 @@ full_result_df = pd.DataFrame({
 })
 
 # 結果保存
-full_result_df.to_csv("assignment_result2.csv", index=False)
+full_result_df.to_csv("assignment_result.csv", index=False)
 
 # 科目ごとの人数分布も出力
 print(full_result_df["assigned_subject"].value_counts())
